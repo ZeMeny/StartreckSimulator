@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartreckSimulator", "StartreckSimulator\StartreckSimulator.csproj", "{64B9B61E-A4F7-4C92-BFE0-F6A87D27345A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestClient", "TestClient\TestClient.csproj", "{32745432-A301-4E0F-B446-7373491A0299}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64B9B61E-A4F7-4C92-BFE0-F6A87D27345A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64B9B61E-A4F7-4C92-BFE0-F6A87D27345A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64B9B61E-A4F7-4C92-BFE0-F6A87D27345A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64B9B61E-A4F7-4C92-BFE0-F6A87D27345A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32745432-A301-4E0F-B446-7373491A0299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32745432-A301-4E0F-B446-7373491A0299}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32745432-A301-4E0F-B446-7373491A0299}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32745432-A301-4E0F-B446-7373491A0299}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C74BB96D-5B24-4B59-B22F-B9D1ACA4551F}
+	EndGlobalSection
+EndGlobal

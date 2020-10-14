@@ -1,0 +1,21 @@
+﻿<Window x:Class="StartreckSimulator.Views.LogItemWindow"
+        x:Name="This"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Log Item Window"
+        Height="400" 
+        Width="400"
+        WindowStartupLocation="CenterOwner"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{StaticResource MaterialDesignFont}">
+    <ScrollViewer HorizontalScrollBarVisibility="Visible">
+        <TextBox IsReadOnly="True" 
+                 Text="{Binding ElementName=This, Path=Item}"
+                 TextWrapping="Wrap"
+                 VerticalContentAlignment="Top"/>
+    </ScrollViewer>
+</Window>

@@ -1,0 +1,99 @@
+﻿<Window x:Class="StartreckSimulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:s="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:StartreckSimulator"
+        mc:Ignorable="d"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        DataContext="{StaticResource MainViewModel}"
+        Background="{StaticResource MaterialDesignPaper}"
+        TextElement.Foreground="{StaticResource MaterialDesignBody}"
+        Title="Classification Simulator" 
+        Height="600" Width="600"
+        MinHeight="600" MinWidth="500">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding CloseCommand}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="68*"/>
+            <RowDefinition Height="458*"/>
+            <RowDefinition Height="43*"/>
+        </Grid.RowDefinitions>
+        <TextBox Margin="10,10,292,0" 
+                 TextWrapping="Wrap"
+                 FontSize="20"
+                 Text="{Binding Url, Mode=TwoWay}"
+                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                 md:HintAssist.Hint="Url" Height="48" VerticalAlignment="Top"/>
+        <Button Margin="0,10,10,0" 
+                Height="48" HorizontalAlignment="Right" Width="145"
+                FontSize="20" Command="{Binding StartStopCommand}" VerticalAlignment="Top">
+            <Button.Style>
+                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                            <Setter Property="Content" Value="Stop"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsRunning}" Value="False">
+                            <Setter Property="Content" Value="Start"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+        <ComboBox Margin="0,8,160,0" 
+                  HorizontalAlignment="Right" Width="127"
+                  FontSize="18"
+                  SelectedItem="{Binding ServerStatus}"
+                  Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                  md:HintAssist.Hint="Server Status" VerticalAlignment="Top" Height="50">
+            <s:Int32>200</s:Int32>
+            <s:Int32>404</s:Int32>
+            <s:Int32>500</s:Int32>
+        </ComboBox>
+        <DockPanel Margin="10,10,10,0" Grid.Row="1">
+            <md:Card DockPanel.Dock="Top" >
+                <Expander FontSize="20">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                                    Width="25"
+                                    Height="25"
+                                    Command="{Binding UpdateCommand}">
+                                <md:PackIcon Kind="Refresh"/>
+                            </Button>
+                            <TextBlock Margin="10,0,0,0">Classifications</TextBlock>
+                        </StackPanel>
+                    </Expander.Header>
+                    <Grid Height="200" >
+                        <DataGrid ItemsSource="{Binding Classifications}"
+                                      HeadersVisibility="None"
+                                      CanUserSortColumns="False"
+                                      CanUserAddRows="False">
+                        </DataGrid>
+                    </Grid>
+                </Expander>
+            </md:Card>
+            <Border Margin="0,10,0,0"
+                    BorderThickness="0.8"
+                    BorderBrush="{StaticResource PrimaryHueDarkBrush}">
+                <ScrollViewer CanContentScroll="True">
+                    <ListBox BorderThickness="0" ItemsSource="{Binding LogItems}"/>
+                </ScrollViewer>
+            </Border>
+        </DockPanel>
+        <Button Content="Clear" HorizontalAlignment="Center" Margin="0,5,0,5" Grid.Row="2" Width="76" Height="Auto"
+                Command="{Binding ClearCommand}"/>
+        <CheckBox Content="Show Keep Alive" HorizontalAlignment="Right" Margin="0,15,10,0" Grid.Row="2" VerticalAlignment="Top"
+                  IsChecked="{Binding ShowKeepAlive}"/>
+    </Grid>
+</Window>
