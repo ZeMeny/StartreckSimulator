@@ -117,6 +117,10 @@ namespace StartreckSimulator.Models
                 {
                     _requestTimes.Add(request, DateTime.Now);
                 }
+                else if (request.Command == "Acknowledge")
+                {
+                    return;
+                }
                 else if (request.Command == "Stop")
                 {
                     var key = _requestTimes.Keys.FirstOrDefault(x =>
