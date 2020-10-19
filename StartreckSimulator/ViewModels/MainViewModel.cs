@@ -145,22 +145,36 @@ namespace StartreckSimulator.ViewModels
         {
             if (_server != null && _server.IsOpen)
             {
-                _server.Stop();
-                IsRunning = false;
-                AddLogItem("Server Stopped");
+                try
+                {
+                    _server.Stop();
+                    IsRunning = false;
+                    AddLogItem("Server Stopped");
+                }
+                catch (Exception ex)
+                {
+                    AddLogItem("Error Stopping Server", ex);
+                }
             }
             else
             {
-                _server = new ClassificationServer(new Uri(Url, UriKind.Absolute));
-                _server.RequestReceived += Server_RequestReceived;
-                _server.ResponseSent += Server_ResponseSent;
-                _server.Error += Server_Error;
-                _server.AckSent += Server_AckSent;
-                _server.Start();
-                _server.StatusCode = ServerStatus;
-                UpdateClassification();
-                IsRunning = true;
-                AddLogItem($"Server Started on {_server.ServerUrl}");
+                try
+                {
+                    _server = new ClassificationServer(new Uri(Url, UriKind.Absolute));
+                    _server.RequestReceived += Server_RequestReceived;
+                    _server.ResponseSent += Server_ResponseSent;
+                    _server.Error += Server_Error;
+                    _server.AckSent += Server_AckSent;
+                    _server.Start();
+                    _server.StatusCode = ServerStatus;
+                    UpdateClassification();
+                    IsRunning = true;
+                    AddLogItem($"Server Started on {_server.ServerUrl}");
+                }
+                catch (Exception ex)
+                {
+                    AddLogItem("Error Starting Server", ex);
+                }
             }
         }
 
