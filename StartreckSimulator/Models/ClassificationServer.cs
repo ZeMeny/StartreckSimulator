@@ -152,8 +152,8 @@ namespace StartreckSimulator.Models
             }
             else
             {
-                response.Status = "Failure";
-                response.ErrorMessage = "GPU Overload";
+                response.Code = "Failure";
+                response.Message = "GPU Overload";
             }
 
             return response;
