@@ -1,92 +1,159 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "http://example.com/product.schema.json",
-    "title": "mrs-startrek classification schema",
-    "definitions": {
-        "request": {
-            "description": "A classification request from mrs to startrek",
-            "title": "classification request message",
-            "type": "object",
-            "properties": {
-                "command":{
-                    "description": "The request command",
-                    "type": "string",
-                    "enum": ["KeepAlive", "Classification", "Stop"]
-                },
-                "sensorId": {
-                    "description": "The id of the sensor associated with the mission",
-                    "type": "string"
-                },
-                "missionId": {
-                    "type": "integer"
-                }        
-            },
-            "required": [ "command" ],
-            "additionalItems": false
-        },
-        "response": {
-            "description": "A classification response from startrek to mrs",
-            "type": "object",
-            "title": "classification response message",
-            "properties": {
-                "sensorId": {
-                    "description": "The id of the sensor associated with the mission",
-                    "type": "string"
-                },
-                "missionId": {
-                    "description": "The mission id",
-                    "type": "integer"
-                },
-                "classifications": {
-                    "description": "An array of classification objects",
-                    "type": "array",
-                    "items": {
-                        "description": "An object classification",
-                        "type": "object",
-                        "title": "classification object",
-                        "properties": {
-                            "type": {
-                                "description": "The classification type",
-                                "type": "string",
-                                "enum": ["Person", "Vehicle", "Animal", "Sheep", "Pig", "Donkey", "Horse", "Rabbit",
-                                    "False", "Armed Person", "Group", "Baloon", "Boat", "ArmoredVehicle", "Kite", "Aircraft", "Drone",
-                                    "PickupTruck", "Tractor", "Truck", "Motorcycle", "Wagon", "Bird", "Undefined"
-                                ]
-                            },
-                            "confidence": {
-                                "description": "The classification confidence precentage",
-                                "type": "number",
-                                "minimum": 0,
-                                "maximum": 100
-                            }
-                        },
-                        "required": ["type"],
-                        "additionalItems": false
-                    }
-                }
-            },
-            "required": ["sensorId", "missionId", "classifications"],
-            "additionalItems": false
-        },
-        "acknowledge":{
-            "description": "An acknowledge message sent from startrek to mrs",
-            "type":"object",
-            "title": "acknowledge message",
-            "properties": {
-                "code":{
-                    "description": "System status code",
-                    "type":"string",
-                    "enum": [ "OK", "CommunicationError", "InternalError" ]
-                },
-                "message":{
-                    "description": "System status message",
-                    "type": "string",
-                    "minLength": 0,
-                    "maxLength": 1000
-                }
-            },
-            "required": [ "code" ],
-            "additionalItems": false
-        }
-    }
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "http://example.com/product.schema.json",
+	"title": "mrs-startrek classification schema",
+	"definitions": {
+		"request": {
+			"title": "classification request message",
+			"description": "A classification request from mrs to startrek",
+			"type": "object",
+			"properties": {
+				"command": {
+					"description": "The request command",
+					"type": "string",
+					"enum": [
+						"Classification",
+						"Stop"
+					]
+				},
+				"sensorId": {
+					"description": "The id of the sensor associated with the mission",
+					"type": "string"
+				},
+				"missionId": {
+					"type": "integer"
+				},
+				"requestId": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"command",
+				"requestId"
+			],
+			"additionalProperties": false
+		},
+		"response": {
+			"title": "classification response message",
+			"description": "A classification response from startrek to mrs",
+			"type": "object",
+			"properties": {
+				"sensorId": {
+					"description": "The id of the sensor associated with the mission",
+					"type": "string"
+				},
+				"missionId": {
+					"description": "The mission id",
+					"type": "integer"
+				},
+				"classifications": {
+					"description": "An array of classification objects",
+					"type": "array",
+					"items": {
+						"title": "classification object",
+						"description": "An object classification",
+						"type": "object",
+						"properties": {
+							"type": {
+								"description": "The classification type",
+								"type": "string",
+								"enum": [
+									"Person",
+									"Vehicle",
+									"Animal",
+									"Sheep",
+									"Pig",
+									"Donkey",
+									"Horse",
+									"Rabbit",
+									"False",
+									"Armed Person",
+									"Group",
+									"Baloon",
+									"Boat",
+									"ArmoredVehicle",
+									"Kite",
+									"Aircraft",
+									"Drone",
+									"PickupTruck",
+									"Tractor",
+									"Truck",
+									"Motorcycle",
+									"Wagon",
+									"Bird",
+									"Undefined"
+								]
+							},
+							"confidence": {
+								"description": "The classification confidence precentage",
+								"type": "number",
+								"minimum": 0,
+								"maximum": 100
+							}
+						},
+						"required": [
+							"type"
+						],
+						"additionalProperties": false
+					}
+				},
+				"status": {
+					"description": "classification status",
+					"type": "string"
+				},
+				"errorMessage": {
+					"description": "classification failure error message",
+					"type": "string"
+				},
+				"requestId": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"sensorId",
+				"missionId",
+				"classifications",
+				"requestId"
+			],
+			"dependencies": {
+				"status": [
+					"errorMessage"
+				]
+			},
+			"additionalProperties": false
+		},
+		"acknowledge": {
+			"title": "acknowledge message",
+			"description": "An acknowledge message sent from startrek to mrs",
+			"type": "object",
+			"properties": {
+				"code": {
+					"description": "System status code",
+					"type": "string",
+					"enum": [
+						"OK",
+						"CommunicationError"
+					]
+				},
+				"message": {
+					"description": "System status message",
+					"type": "string",
+					"minLength": 0,
+					"maxLength": 1000
+				},
+				"missionId": {
+					"description": "mission id the ack is reffered to",
+					"type": "integer"
+				},
+				"requestId": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"code",
+				"requestId"
+			],
+			"additionalProperties": false
+		}
+	}
 }
