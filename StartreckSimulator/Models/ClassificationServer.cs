@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using StartreckSimulator.Properties;
 using WatsonWebsocket;
 
@@ -29,6 +30,8 @@ namespace StartreckSimulator.Models
 
         public int StatusCode { get; set; } = 200;
 
+        public bool IsSuccess { get; set; } = true;
+
         public IEnumerable<ClassificationTypes> Classifications => _classifications;
 
         #endregion
@@ -39,12 +42,12 @@ namespace StartreckSimulator.Models
         {
             lock (_syncToken)
             {
-                List<Request> requestsToRemove = new List<Request>();
+                var requestsToRemove = new List<Request>();
                 foreach (var requestTime in _requestTimes)
                 {
                     if (DateTime.Now - requestTime.Value >= TimeSpan.FromMilliseconds(Settings.Default.ClassificationRequestIntervalMS))
                     {
-                        var response = CreateResponse(requestTime.Key.MissionId, requestTime.Key.SensorId);
+                        var response = CreateResponse(requestTime.Key.RequestId, requestTime.Key.MissionId, requestTime.Key.SensorId);
                         SendResponse(response);
                         requestsToRemove.Add(requestTime.Key);
                     }
@@ -73,7 +76,7 @@ namespace StartreckSimulator.Models
         {
             try
             {
-                string json = JsonConvert.SerializeObject(response, Formatting.Indented);
+                string json = JsonConvert.SerializeObject(response, Formatting.Indented, new StringEnumConverter());
 
                 foreach (var client in _server.ListClients())
                 {
@@ -87,15 +90,16 @@ namespace StartreckSimulator.Models
             }
         }
 
-        private void SendAck()
+        private void SendAck(string requestId)
         {
             try
             {
                 var ack = new Acknowledge
                 {
-                    Code = StatusCode
+                    Code = StatusCode,
+                    RequestId = requestId
                 };
-                string json = JsonConvert.SerializeObject(ack, Formatting.Indented);
+                string json = JsonConvert.SerializeObject(ack, Formatting.Indented, new StringEnumConverter());
 
                 foreach (var client in _server.ListClients())
                 {
@@ -123,26 +127,36 @@ namespace StartreckSimulator.Models
                 }
                 else if (request.Command == "Stop")
                 {
-                    var key = _requestTimes.Keys.FirstOrDefault(x =>
-                        x.MissionId == request.MissionId && x.SensorId == request.SensorId);
+                    var key = _requestTimes.Keys.FirstOrDefault(x => x.RequestId == request.RequestId);
                     if (key != null)
                     {
                         _requestTimes.Remove(key);
                     }
                 } 
             }
-            SendAck();
+            SendAck(request.RequestId);
         }
 
-        private Response CreateResponse(int missionId, string sensorId)
+        private Response CreateResponse(string requestId, int missionId, string sensorId)
         {
-            return new Response
+            var response =  new Response
             {
-                Classifications = Classifications.Select(x => new Classification { Type = x.ToString() })
-                    .ToArray(),
                 MissionId = missionId,
-                SensorId = sensorId
+                SensorId = sensorId,
+                RequestId = requestId
             };
+            if (IsSuccess)
+            {
+                response.Classifications = Classifications.Select(x => new Classification {Type = x})
+                    .ToArray();
+            }
+            else
+            {
+                response.Status = "Failure";
+                response.ErrorMessage = "GPU Overload";
+            }
+
+            return response;
         }
 
         #endregion

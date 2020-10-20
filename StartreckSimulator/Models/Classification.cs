@@ -2,7 +2,7 @@
 {
     public class Classification
     {
-        public string Type { get; set; }
+        public ClassificationTypes Type { get; set; }
         public int Confidence { get; set; }
     }
 }

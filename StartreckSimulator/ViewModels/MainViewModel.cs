@@ -15,17 +15,18 @@ namespace StartreckSimulator.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        #region / / / / / /  Private fields  / / / / /
+        #region / / / / /  Private fields  / / / / /
 
         private string _url;
         private bool _isRunning;
         private ClassificationServer _server;
         private int _serverStatus = 200;
         private bool _showKeepAlive;
+        private bool _isSuccess = true;
 
         #endregion
 
-        #region / / / / / /  Properties  / / / / /
+        #region / / / / /  Properties  / / / / /
 
         public string Url
         {
@@ -75,6 +76,20 @@ namespace StartreckSimulator.ViewModels
             }
         }
 
+        public bool IsSuccess
+        {
+            get => _isSuccess;
+            set
+            {
+                _isSuccess = value;
+                if (_server != null)
+                {
+                    _server.IsSuccess = value;
+                }
+                OnPropertyChanged(nameof(IsSuccess));
+            }
+        }
+
         #endregion
 
         #region / / / / /  Commands  / / / / /
@@ -87,7 +102,7 @@ namespace StartreckSimulator.ViewModels
 
         #endregion
 
-        #region / / / / / /  Private methods  / / / / /
+        #region / / / / /  Private methods  / / / / /
 
         private void AddLogItem(string header, object content = null)
         {
@@ -211,7 +226,7 @@ namespace StartreckSimulator.ViewModels
 
         #endregion
 
-        #region / / / / / /  Public methods  / / / / /
+        #region / / / / /  Public methods  / / / / /
 
         public MainViewModel()
         {
@@ -231,7 +246,7 @@ namespace StartreckSimulator.ViewModels
 
         #endregion
 
-        #region INotifyPropertyChanged
+        #region / / / / /  INotifyPropertyChanged  / / / / /
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

@@ -24,6 +24,7 @@
         Track, 
         Motorcycle,
         Wagon, 
-        Bird
+        Bird,
+        Undefined
     }
 }
