@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using StartreckSimulator.Properties;
 using WatsonWebsocket;
@@ -63,11 +62,15 @@ namespace StartreckSimulator.Models
             try
             {
                 string message = Encoding.UTF8.GetString(e.Data);
-                var json = ParseJson(message);
-                var request = JsonConvert.DeserializeObject<Request>(json);
+                var json = ParseJson(message, out string root);
 
-                // if this is not a classification request
-                if (string.IsNullOrEmpty(request.Command))
+                if (root == "request")
+                {
+                    var request = JsonConvert.DeserializeObject<Request>(json);
+                    RequestReceived?.Invoke(this, request);
+                    HandleRequest(request);
+                }
+                else if (root == "acknowledge")
                 {
                     var ack = JsonConvert.DeserializeObject<Acknowledge>(message);
                     // if it is not a valid ack
@@ -76,11 +79,6 @@ namespace StartreckSimulator.Models
                         return;
                     }
                     AckReceived?.Invoke(this, ack);
-                }
-                else
-                {
-                    RequestReceived?.Invoke(this, request);
-                    HandleRequest(request);
                 }
             }
             catch (Exception ex)
@@ -93,11 +91,9 @@ namespace StartreckSimulator.Models
         {
             try
             {
-                string json = JsonConvert.SerializeObject(response, Formatting.Indented, new StringEnumConverter());
-
                 foreach (var client in _server.ListClients())
                 {
-                    _server.SendAsync(client, json);
+                    _server.SendAsync(client, response.ToJson());
                 }
                 ResponseSent?.Invoke(this, response);
             }
@@ -116,11 +112,10 @@ namespace StartreckSimulator.Models
                     Code = StatusCode,
                     RequestId = requestId
                 };
-                string json = JsonConvert.SerializeObject(ack, Formatting.Indented, new StringEnumConverter());
 
                 foreach (var client in _server.ListClients())
                 {
-                    _server.SendAsync(client, json);
+                    _server.SendAsync(client, ack.ToJson());
                 }
                 AckSent?.Invoke(this, ack);
             }
@@ -177,9 +172,11 @@ namespace StartreckSimulator.Models
             return response;
         }
 
-        private string ParseJson(string json)
+        private string ParseJson(string json, out string root)
         {
-            return JObject.Parse(json).Children().ElementAt(0).Children().ElementAt(0).ToString();
+            var rootToken = JToken.Parse(json).First;
+            root = rootToken?.Path;
+            return rootToken.First.ToString();
         }
 
         #endregion
