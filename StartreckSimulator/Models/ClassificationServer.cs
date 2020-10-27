@@ -5,6 +5,7 @@ using System.Text;
 using System.Timers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using StartreckSimulator.Properties;
 using WatsonWebsocket;
 
@@ -61,10 +62,26 @@ namespace StartreckSimulator.Models
         {
             try
             {
-                var request = JsonConvert.DeserializeObject<Request>(Encoding.UTF8.GetString(e.Data));
+                string message = Encoding.UTF8.GetString(e.Data);
+                var json = ParseJson(message);
+                var request = JsonConvert.DeserializeObject<Request>(json);
 
-                RequestReceived?.Invoke(this, request);
-                HandleRequest(request);
+                // if this is not a classification request
+                if (string.IsNullOrEmpty(request.Command))
+                {
+                    var ack = JsonConvert.DeserializeObject<Acknowledge>(message);
+                    // if it is not a valid ack
+                    if (ack.Code <= 0)
+                    {
+                        return;
+                    }
+                    AckReceived?.Invoke(this, ack);
+                }
+                else
+                {
+                    RequestReceived?.Invoke(this, request);
+                    HandleRequest(request);
+                }
             }
             catch (Exception ex)
             {
@@ -143,7 +160,8 @@ namespace StartreckSimulator.Models
             {
                 MissionId = missionId,
                 SensorId = sensorId,
-                RequestId = requestId
+                RequestId = requestId,
+                Code = StatusCode.ToString()
             };
             if (IsSuccess)
             {
@@ -157,6 +175,11 @@ namespace StartreckSimulator.Models
             }
 
             return response;
+        }
+
+        private string ParseJson(string json)
+        {
+            return JObject.Parse(json).Children().ElementAt(0).Children().ElementAt(0).ToString();
         }
 
         #endregion
@@ -195,8 +218,7 @@ namespace StartreckSimulator.Models
 
         public void UpdateClassifications(IEnumerable<ClassificationTypes> classifications)
         {
-            _classifications.AddRange(classifications);
-            _classifications = _classifications.Distinct().ToList();
+            _classifications = new List<ClassificationTypes>(classifications);
         }
 
         #endregion
@@ -206,6 +228,7 @@ namespace StartreckSimulator.Models
         public event EventHandler<Request> RequestReceived;
         public event EventHandler<Response> ResponseSent;
         public event EventHandler<Acknowledge> AckSent;
+        public event EventHandler<Acknowledge> AckReceived;
         public event EventHandler<Exception> Error;
 
         #endregion

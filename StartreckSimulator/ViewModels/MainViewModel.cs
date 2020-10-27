@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -148,6 +149,7 @@ namespace StartreckSimulator.ViewModels
         {
             _server?.Stop();
             Settings.Default.ServerUrl = Url;
+            SaveClassificationConfig();
             Settings.Default.Save();
         }
 
@@ -180,6 +182,7 @@ namespace StartreckSimulator.ViewModels
                     _server.ResponseSent += Server_ResponseSent;
                     _server.Error += Server_Error;
                     _server.AckSent += Server_AckSent;
+                    _server.AckReceived += Server_AckReceived;
                     _server.Start();
                     _server.StatusCode = ServerStatus;
                     UpdateClassification();
@@ -190,6 +193,14 @@ namespace StartreckSimulator.ViewModels
                 {
                     AddLogItem("Error Starting Server", ex);
                 }
+            }
+        }
+
+        private void Server_AckReceived(object sender, Acknowledge e)
+        {
+            if (ShowKeepAlive)
+            {
+                AddLogItem("Acknowledge Message Received", e.ToJson());
             }
         }
 
@@ -224,6 +235,27 @@ namespace StartreckSimulator.ViewModels
             _server?.UpdateClassifications(Classifications.Where(x => x.IsSelected).Select(x => x.Type));
         }
 
+        private void LoadClassificationsConfig()
+        {
+            var array = Enum.GetValues(typeof(ClassificationTypes));
+            var classifications = new ClassificationTypes[array.Length];
+            array.CopyTo(classifications, 0);
+
+            Classifications = new ObservableCollection<ClassificationSelect>(
+                classifications.Select(x => new ClassificationSelect
+                {
+                    IsSelected = Settings.Default.Classifications.Contains(x.ToString()),
+                    Type = x
+                }));
+        }
+
+        private void SaveClassificationConfig()
+        {
+            Settings.Default.Classifications.Clear();
+            var result = Classifications.Where(x=>x.IsSelected).Select(x => x.Type.ToString());
+            Settings.Default.Classifications.AddRange(result.ToArray());
+        }
+
         #endregion
 
         #region / / / / /  Public methods  / / / / /
@@ -236,12 +268,7 @@ namespace StartreckSimulator.ViewModels
             LoadCommand = new Command(Load);
             UpdateCommand = new Command(UpdateClassification);
 
-            var array = Enum.GetValues(typeof(ClassificationTypes));
-            var classifications = new ClassificationTypes[array.Length];
-            array.CopyTo(classifications, 0);
-
-            Classifications = new ObservableCollection<ClassificationSelect>(
-                classifications.Select(x => new ClassificationSelect {IsSelected = false, Type = x}));
+            LoadClassificationsConfig();
         }
 
         #endregion

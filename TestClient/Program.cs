@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Reflection;
+using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 
 namespace TestClient
@@ -50,6 +52,12 @@ namespace TestClient
         private static void Socket_OnMessage(object sender, MessageEventArgs e)
         {
             Console.WriteLine($"{DateTime.Now} - Message Received:\n{e.Data}");
+
+            Acknowledge ack = new Acknowledge
+            {
+                Code = 200
+            };
+            Send(ack);
         }
 
         private static void Send(object data)
@@ -60,7 +68,8 @@ namespace TestClient
                 {
                     socket.Connect();
                 }
-                var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+                var json = ToJson(data);
                 socket.Send(json);
                 Console.WriteLine($"{DateTime.Now} - Message Sent:\n{json}");
             }
@@ -70,6 +79,13 @@ namespace TestClient
                 Console.WriteLine(ex);
                 Console.ResetColor();
             }
+        }
+
+        private static string ToJson<T>(T obj)
+        {
+            var name = obj.GetType().Name.ToLower();
+            var jv = JToken.FromObject(obj);
+            return new JObject(new JProperty(name, jv)).ToString();
         }
     }
 }
