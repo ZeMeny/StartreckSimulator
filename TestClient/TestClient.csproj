@@ -54,16 +54,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acknowledge.cs" />
-    <Compile Include="Classification.cs" />
-    <Compile Include="ClassificationTypes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Request.cs" />
-    <Compile Include="Response.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StartreckSimulator\StartreckSimulator.csproj">
+      <Project>{64B9B61E-A4F7-4C92-BFE0-F6A87D27345A}</Project>
+      <Name>StartreckSimulator</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -64,21 +64,20 @@ namespace StartreckSimulator.Models
                 string message = Encoding.UTF8.GetString(e.Data);
                 var json = ParseJson(message, out string root);
 
-                if (root == "request")
+                if (root.ToLower() == "request")
                 {
                     var request = JsonConvert.DeserializeObject<Request>(json);
                     RequestReceived?.Invoke(this, request);
                     HandleRequest(request);
                 }
-                else if (root == "acknowledge")
+                else if (root.ToLower() == "acknowledge")
                 {
                     var ack = JsonConvert.DeserializeObject<Acknowledge>(message);
-                    // if it is not a valid ack
-                    if (ack.Code <= 0)
-                    {
-                        return;
-                    }
                     AckReceived?.Invoke(this, ack);
+                }
+                else
+                {
+                    Error?.Invoke(this, new NotSupportedException($"Unknown Message Type: {root}"));
                 }
             }
             catch (Exception ex)
@@ -93,7 +92,11 @@ namespace StartreckSimulator.Models
             {
                 foreach (var client in _server.ListClients())
                 {
-                    _server.SendAsync(client, response.ToJson());
+                    var root = new
+                    {
+                        Response = response
+                    };
+                    _server.SendAsync(client, root.ToJson());
                 }
                 ResponseSent?.Invoke(this, response);
             }
@@ -113,9 +116,14 @@ namespace StartreckSimulator.Models
                     RequestId = requestId
                 };
 
+                var root = new
+                {
+                    Acknowledge = ack
+                };
+
                 foreach (var client in _server.ListClients())
                 {
-                    _server.SendAsync(client, ack.ToJson());
+                    _server.SendAsync(client, root.ToJson());
                 }
                 AckSent?.Invoke(this, ack);
             }
@@ -132,10 +140,6 @@ namespace StartreckSimulator.Models
                 if (request.Command == "Classification")
                 {
                     _requestTimes.Add(request, DateTime.Now);
-                }
-                else if (request.Command == "Acknowledge")
-                {
-                    return;
                 }
                 else if (request.Command == "Stop")
                 {
@@ -156,7 +160,7 @@ namespace StartreckSimulator.Models
                 MissionId = missionId,
                 SensorId = sensorId,
                 RequestId = requestId,
-                Code = StatusCode.ToString()
+                Code = StatusCode
             };
             if (IsSuccess)
             {
@@ -165,8 +169,8 @@ namespace StartreckSimulator.Models
             }
             else
             {
-                response.Code = "Failure";
-                response.Message = "GPU Overload";
+                response.Code = 500;
+                response.Message = "INTERNAL SERVER ERROR";
             }
 
             return response;
@@ -174,7 +178,7 @@ namespace StartreckSimulator.Models
 
         private string ParseJson(string json, out string root)
         {
-            var rootToken = JToken.Parse(json).First;
+            var rootToken = JObject.Parse(json).First;
             root = rootToken?.Path;
             return rootToken.First.ToString();
         }

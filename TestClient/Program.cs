@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Reflection;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using StartreckSimulator.Models;
 using WebSocketSharp;
 
 namespace TestClient
@@ -34,9 +37,15 @@ namespace TestClient
                 {
                     Command = "Classification",
                     MissionId = 1,
-                    SensorId = "Sensor1"
+                    SensorId = "Sensor1",
+                    RequestId = "12345"
                 };
-                Send(request);
+
+                var root = new
+                {
+                    Request = request
+                };
+                Send(root);
             }
 
             var stop = new Request
@@ -45,7 +54,12 @@ namespace TestClient
                 MissionId = 1,
                 SensorId = "Sensor1"
             };
-            Send(stop);
+
+            var stopRoot = new
+            {
+                Stop = stop
+            };
+            Send(stopRoot);
             Console.ReadKey();
         }
 
@@ -57,7 +71,12 @@ namespace TestClient
             {
                 Code = 200
             };
-            Send(ack);
+
+            var root = new
+            {
+                Acknowledge = ack
+            };
+            Send(root);
         }
 
         private static void Send(object data)
@@ -69,7 +88,7 @@ namespace TestClient
                     socket.Connect();
                 }
 
-                var json = ToJson(data);
+                var json = data.ToJson();
                 socket.Send(json);
                 Console.WriteLine($"{DateTime.Now} - Message Sent:\n{json}");
             }
@@ -79,13 +98,6 @@ namespace TestClient
                 Console.WriteLine(ex);
                 Console.ResetColor();
             }
-        }
-
-        private static string ToJson<T>(T obj)
-        {
-            var name = obj.GetType().Name.ToLower();
-            var jv = JToken.FromObject(obj);
-            return new JObject(new JProperty(name, jv)).ToString();
         }
     }
 }
