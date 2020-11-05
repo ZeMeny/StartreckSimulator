@@ -8,10 +8,6 @@ namespace StartreckSimulator.Models
     {
         public static string ToJson<T>(this T obj)
         {
-            var root = new
-            {
-                obj
-            };
             return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
             {
                 Converters = {new StringEnumConverter()},
@@ -21,18 +17,6 @@ namespace StartreckSimulator.Models
                     NamingStrategy = new CamelCaseNamingStrategy()
                 }
             });
-
-            //var name = obj.GetType().Name.ToCamelCase();
-            //var jv = JObject.FromObject(obj, new JsonSerializer
-            //{
-            //    Converters = { new StringEnumConverter() },
-            //    Formatting = Formatting.Indented,
-            //    ContractResolver = new DefaultContractResolver
-            //    {
-            //        NamingStrategy = new CamelCaseNamingStrategy()
-            //    }
-            //});
-            //return JsonConvert.SerializeObject(new JObject(name, jv), Formatting.Indented);
         }
 
         public static string ToCamelCase(this string str)

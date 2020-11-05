@@ -67,13 +67,13 @@ namespace StartreckSimulator.Models
                 if (root.ToLower() == "request")
                 {
                     var request = JsonConvert.DeserializeObject<Request>(json);
-                    RequestReceived?.Invoke(this, request);
+                    RequestReceived?.Invoke(this, message);
                     HandleRequest(request);
                 }
                 else if (root.ToLower() == "acknowledge")
                 {
                     var ack = JsonConvert.DeserializeObject<Acknowledge>(message);
-                    AckReceived?.Invoke(this, ack);
+                    AckReceived?.Invoke(this, message);
                 }
                 else
                 {
@@ -92,13 +92,22 @@ namespace StartreckSimulator.Models
             {
                 foreach (var client in _server.ListClients())
                 {
-                    var root = new
+                    string json = "";
+                    if (Settings.Default.AddJsonRootObject)
                     {
-                        Response = response
-                    };
-                    _server.SendAsync(client, root.ToJson());
+                        var root = new
+                        {
+                            Response = response
+                        };
+                        json = root.ToJson();
+                    }
+                    else
+                    {
+                        json = response.ToJson();
+                    }
+                    _server.SendAsync(client, json);
+                    ResponseSent?.Invoke(this, json);
                 }
-                ResponseSent?.Invoke(this, response);
             }
             catch (Exception ex)
             {
@@ -116,16 +125,25 @@ namespace StartreckSimulator.Models
                     RequestId = requestId
                 };
 
-                var root = new
-                {
-                    Acknowledge = ack
-                };
-
                 foreach (var client in _server.ListClients())
                 {
-                    _server.SendAsync(client, root.ToJson());
+                    string json = "";
+                    if (Settings.Default.AddJsonRootObject)
+                    {
+                        var root = new
+                        {
+                            Acknowledge = ack
+                        };
+                        json = root.ToJson();
+                    }
+                    else
+                    {
+                        json = ack.ToJson();
+                    }
+
+                    _server.SendAsync(client, json);
+                    AckSent?.Invoke(this, json);
                 }
-                AckSent?.Invoke(this, ack);
             }
             catch (Exception ex)
             {
@@ -226,10 +244,10 @@ namespace StartreckSimulator.Models
 
         #region / / / / /  Events  / / / / /
 
-        public event EventHandler<Request> RequestReceived;
-        public event EventHandler<Response> ResponseSent;
-        public event EventHandler<Acknowledge> AckSent;
-        public event EventHandler<Acknowledge> AckReceived;
+        public event EventHandler<string> RequestReceived;
+        public event EventHandler<string> ResponseSent;
+        public event EventHandler<string> AckReceived;
+        public event EventHandler<string> AckSent;
         public event EventHandler<Exception> Error;
 
         #endregion

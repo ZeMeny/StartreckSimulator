@@ -196,19 +196,19 @@ namespace StartreckSimulator.ViewModels
             }
         }
 
-        private void Server_AckReceived(object sender, Acknowledge e)
+        private void Server_AckReceived(object sender, string e)
         {
             if (ShowKeepAlive)
             {
-                AddLogItem("Acknowledge Message Received", e.ToJson());
+                AddLogItem("Acknowledge Message Received", e);
             }
         }
 
-        private void Server_AckSent(object sender, Acknowledge e)
+        private void Server_AckSent(object sender, string e)
         {
             if (ShowKeepAlive)
             {
-                AddLogItem("Acknowledge Message Sent", e.ToJson());
+                AddLogItem("Acknowledge Message Sent", e);
             }
         }
 
@@ -217,17 +217,14 @@ namespace StartreckSimulator.ViewModels
             AddLogItem("Error in WebSocket Server", e);
         }
 
-        private void Server_ResponseSent(object sender, Response e)
+        private void Server_ResponseSent(object sender, string e)
         {
-            AddLogItem("Response Sent", e.ToJson());
+            AddLogItem("Response Sent", e);
         }
 
-        private void Server_RequestReceived(object sender, Request e)
+        private void Server_RequestReceived(object sender, string e)
         {
-            if (e.Command != "KeepAlive" || ShowKeepAlive)
-            {
-                AddLogItem($"Request ({e.Command}) Received", e.ToJson());
-            }
+            AddLogItem($"Request Received", e);
         }
 
         private void UpdateClassification()

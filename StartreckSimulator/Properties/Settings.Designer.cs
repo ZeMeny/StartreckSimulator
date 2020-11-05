@@ -72,5 +72,17 @@ namespace StartreckSimulator.Properties {
                 this["Classifications"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AddJsonRootObject {
+            get {
+                return ((bool)(this["AddJsonRootObject"]));
+            }
+            set {
+                this["AddJsonRootObject"] = value;
+            }
+        }
     }
 }
