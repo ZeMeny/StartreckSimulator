@@ -35,6 +35,7 @@ namespace TestClient
             {
                 var request = new Request
                 {
+                    MessageType = MessageType.Request,
                     Command = "Classification",
                     MissionId = 1,
                     SensorId = "Sensor1",
@@ -45,21 +46,23 @@ namespace TestClient
                 {
                     Request = request
                 };
-                Send(root);
+                Send(request);
             }
 
             var stop = new Request
             {
+                MessageType = MessageType.Request,
                 Command = "Stop",
                 MissionId = 1,
-                SensorId = "Sensor1"
+                SensorId = "Sensor1",
+                RequestId = "12345"
             };
 
             var stopRoot = new
             {
                 Stop = stop
             };
-            Send(stopRoot);
+            Send(stop);
             Console.ReadKey();
         }
 
@@ -69,14 +72,17 @@ namespace TestClient
 
             Acknowledge ack = new Acknowledge
             {
-                Code = 200
+                MessageType = MessageType.Acknowledge,
+                Code = 200,
+                Message = "",
+                RequestId = "12345"
             };
 
             var root = new
             {
                 Acknowledge = ack
             };
-            Send(root);
+            Send(ack);
         }
 
         private static void Send(object data)

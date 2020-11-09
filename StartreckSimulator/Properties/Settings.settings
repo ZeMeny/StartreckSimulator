@@ -18,6 +18,9 @@
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="AddJsonRootObject" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ValidateMessages" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

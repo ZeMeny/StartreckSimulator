@@ -2,7 +2,7 @@
 
 namespace StartreckSimulator.Models
 {
-    public class Request
+    public class Request : RootObject
     {
         [JsonProperty(PropertyName = "command")]
         public string Command { get; set; }

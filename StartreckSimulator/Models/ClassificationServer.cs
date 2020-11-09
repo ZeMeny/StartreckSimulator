@@ -62,22 +62,13 @@ namespace StartreckSimulator.Models
             try
             {
                 string message = Encoding.UTF8.GetString(e.Data);
-                var json = ParseJson(message, out string root);
-
-                if (root.ToLower() == "request")
+                if (Settings.Default.ValidateMessages && !message.IsValid(out var errors))
                 {
-                    var request = JsonConvert.DeserializeObject<Request>(json);
-                    RequestReceived?.Invoke(this, message);
-                    HandleRequest(request);
-                }
-                else if (root.ToLower() == "acknowledge")
-                {
-                    var ack = JsonConvert.DeserializeObject<Acknowledge>(message);
-                    AckReceived?.Invoke(this, message);
+                    Error?.Invoke(this, errors);
                 }
                 else
                 {
-                    Error?.Invoke(this, new NotSupportedException($"Unknown Message Type: {root}"));
+                    ProcessMessage(message);
                 }
             }
             catch (Exception ex)
@@ -121,6 +112,7 @@ namespace StartreckSimulator.Models
             {
                 var ack = new Acknowledge
                 {
+                    MessageType = MessageType.Acknowledge,
                     Code = StatusCode,
                     RequestId = requestId
                 };
@@ -175,6 +167,7 @@ namespace StartreckSimulator.Models
         {
             var response =  new Response
             {
+                MessageType = MessageType.Response,
                 MissionId = missionId,
                 SensorId = sensorId,
                 RequestId = requestId,
@@ -199,6 +192,49 @@ namespace StartreckSimulator.Models
             var rootToken = JObject.Parse(json).First;
             root = rootToken?.Path;
             return rootToken.First.ToString();
+        }
+
+        private void ProcessMessage(string message)
+        {
+            if (Settings.Default.AddJsonRootObject)
+            {
+                var json = ParseJson(message, out string root);
+
+                if (root.ToLower() == "request")
+                {
+                    var request = JsonConvert.DeserializeObject<Request>(json);
+                    RequestReceived?.Invoke(this, message);
+                    HandleRequest(request);
+                }
+                else if (root.ToLower() == "acknowledge")
+                {
+                    AckReceived?.Invoke(this, message);
+                }
+                else
+                {
+                    Error?.Invoke(this, new NotSupportedException($"Unknown Message Type: {root}"));
+                }
+            }
+            else
+            {
+                var root = JsonConvert.DeserializeObject<RootObject>(message);
+                switch (root.MessageType)
+                {
+                    case MessageType.Request:
+                        var request = JsonConvert.DeserializeObject<Request>(message);
+                        RequestReceived?.Invoke(this, message);
+                        HandleRequest(request);
+                        break;
+                    case MessageType.Response:
+                        break;
+                    case MessageType.Acknowledge:
+                        AckReceived?.Invoke(this, message);
+                        break;
+                    default:
+                        Error?.Invoke(this, new NotSupportedException($"Unknown Message Type: {root}"));
+                        break;
+                }
+            }
         }
 
         #endregion

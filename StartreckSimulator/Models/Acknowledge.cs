@@ -2,7 +2,7 @@
 
 namespace StartreckSimulator.Models
 {
-    public class Acknowledge
+    public class Acknowledge : RootObject
     {
         [JsonProperty(PropertyName = "code")]
         public int Code { get; set; }

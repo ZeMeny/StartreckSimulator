@@ -2,7 +2,7 @@
 
 namespace StartreckSimulator.Models
 {
-    public class Response
+    public class Response : RootObject
     {
         [JsonProperty(PropertyName = "sensorId")]
         public string SensorId { get; set; }

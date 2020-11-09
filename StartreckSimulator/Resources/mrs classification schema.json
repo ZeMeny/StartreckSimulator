@@ -2,23 +2,38 @@
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"$id": "http://example.com/product.schema.json",
 	"title": "mrs-startrek classification schema",
+	"oneOf": [
+		{
+			"$ref": "#/definitions/request"
+		},
+		{
+			"$ref": "#/definitions/response"
+		},
+		{
+			"$ref": "#/definitions/acknowledge"
+		}
+	],
 	"definitions": {
 		"request": {
+			"type": "object",
 			"title": "classification request message",
 			"description": "A classification request from mrs to startrek",
-			"type": "object",
+			"additionalProperties": false,
 			"properties": {
+				"messageType": {
+					"$ref": "#/definitions/messageType"
+				},
 				"command": {
-					"description": "The request command",
 					"type": "string",
+					"description": "The request command",
 					"enum": [
 						"Classification",
 						"Stop"
 					]
 				},
 				"sensorId": {
-					"description": "The id of the sensor associated with the mission",
-					"type": "string"
+					"type": "string",
+					"description": "The id of the sensor associated with the mission"
 				},
 				"missionId": {
 					"type": "integer"
@@ -28,35 +43,41 @@
 				}
 			},
 			"required": [
+				"messageType",
 				"command",
-				"requestId"
-			],
-			"additionalProperties": false
+				"requestId",
+				"missionId"
+			]
 		},
 		"response": {
+			"type": "object",
 			"title": "classification response message",
 			"description": "A classification response from startrek to mrs",
-			"type": "object",
+			"additionalProperties": false,
 			"properties": {
+				"messageType": {
+					"$ref": "#/definitions/messageType"
+				},
 				"sensorId": {
-					"description": "The id of the sensor associated with the mission",
-					"type": "string"
+					"type": "string",
+					"description": "The id of the sensor associated with the mission"
 				},
 				"missionId": {
-					"description": "The mission id",
-					"type": "integer"
+					"type": "integer",
+					"description": "The mission id"
 				},
 				"classifications": {
-					"description": "An array of classification objects",
 					"type": "array",
+					"description": "An array of classification objects",
 					"items": {
+						"type": "object",
 						"title": "classification object",
 						"description": "An object classification",
-						"type": "object",
+						"additionalProperties": false,
 						"properties": {
 							"type": {
-								"description": "The classification type",
 								"type": "string",
+								"description": "The classification type",
 								"enum": [
 									"Person",
 									"Vehicle",
@@ -85,75 +106,82 @@
 								]
 							},
 							"confidence": {
-								"description": "The classification confidence precentage",
 								"type": "number",
-								"minimum": 0,
-								"maximum": 100
+								"description": "The classification confidence precentage",
+								"maximum": 100,
+								"minimum": 0
 							}
 						},
 						"required": [
 							"type"
-						],
-						"additionalProperties": false
+						]
 					}
 				},
-				"status": {
-					"description": "classification status",
-					"type": "string"
+				"code": {
+					"type": "integer",
+					"description": "classification status"
 				},
-				"errorMessage": {
-					"description": "classification failure error message",
-					"type": "string"
+				"message": {
+					"type": "string",
+					"description": "classification failure error message"
 				},
 				"requestId": {
 					"type": "string"
 				}
 			},
 			"required": [
+				"messageType",
 				"sensorId",
 				"missionId",
 				"classifications",
 				"requestId"
 			],
 			"dependencies": {
-				"status": [
-					"errorMessage"
+				"code": [
+					"message"
 				]
-			},
-			"additionalProperties": false
+			}
 		},
 		"acknowledge": {
+			"type": "object",
 			"title": "acknowledge message",
 			"description": "An acknowledge message sent from startrek to mrs",
-			"type": "object",
+			"additionalProperties": false,
 			"properties": {
+				"messageType": {
+					"$ref": "#/definitions/messageType"
+				},
 				"code": {
-					"description": "System status code",
-					"type": "string",
-					"enum": [
-						"OK",
-						"CommunicationError"
-					]
+					"type": "integer",
+					"description": "System status code"
 				},
 				"message": {
-					"description": "System status message",
 					"type": "string",
-					"minLength": 0,
-					"maxLength": 1000
+					"description": "System status message",
+					"maxLength": 1000,
+					"minLength": 0
 				},
 				"missionId": {
-					"description": "mission id the ack is reffered to",
-					"type": "integer"
+					"type": "integer",
+					"description": "mission id the ack is reffered to"
 				},
 				"requestId": {
 					"type": "string"
 				}
 			},
 			"required": [
+				"messageType",
 				"code",
 				"requestId"
-			],
-			"additionalProperties": false
+			]
+		},
+		"messageType": {
+			"type": "string",
+			"enum": [
+				"Request",
+				"Response",
+				"Acknowledge"
+			]
 		}
 	}
 }
