@@ -133,7 +133,6 @@
 				"messageType",
 				"sensorId",
 				"missionId",
-				"classifications",
 				"requestId"
 			],
 			"dependencies": {
